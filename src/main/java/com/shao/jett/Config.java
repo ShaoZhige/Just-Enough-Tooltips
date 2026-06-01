@@ -108,13 +108,15 @@ public class Config {
 
         builder.comment("Custom tooltips to add to items",
                          "Format: \"modid:item_name=Your text here\"",
-                         "\u683C\u5F0F\uFF1A\"modid:item_name=\u4F60\u7684\u6587\u672C\"")
+                         "\u683C\u5F0F\uFF1A\"modid:item_name=\u4F60\u7684\u6587\u672C\"",
+                         "Example / \u793A\u4F8B\uFF1A",
+                         "  [\"minecraft:iron_sword=Made of iron\",",
+                         "   \"minecraft:diamond_sword=Made of diamond\"]")
                .push("customTooltips");
 
         customTooltips = builder
                 .comment("Add custom text lines to item tooltips.",
                          "Each entry: \"modid:item_name=Tooltip text\"",
-                         "Example: \"minecraft:diamond_sword=Made of diamond\"",
                          "\u6BCF\u6761\u683C\u5F0F\uFF1A\"modid:item_name=\u81EA\u5B9A\u4E49\u6587\u672C\"")
                 .defineList("customTooltips", Lists::newArrayList,
                         obj -> obj instanceof String);

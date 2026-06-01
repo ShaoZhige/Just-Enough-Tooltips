@@ -28,7 +28,7 @@ public class JETT {
         // 纯客户端模组，服务端跳过
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
                 () -> () -> {
-                    ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CONFIG_SPEC);
+                    ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CONFIG_SPEC);
                     FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
                 });
     }
