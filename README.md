@@ -2,8 +2,8 @@
 Hide or add item tooltips, your way.
 EN:
 
-JETT is a client-side mod that lets you hide attribute modifiers from item tooltips. Nothing is hidden by default — open the config file and pick which attributes to remove. Attack damage, attack speed, armor, toughness, knockback resistance, and more can all be toggled individually. Equipment slot headers like "When in main hand:" can be hidden per slot. Item whitelists are supported for both attribute lines and slot headers. Purely visual, no gameplay impact.
+JETT is a client-side mod for full control over item tooltips. Hide attribute modifiers — individually or by type. Add custom tooltip text to any item. Toggle equipment slot headers per slot. Item whitelists for fine-grained exceptions. Everything is optional, nothing is hidden by default.
 
 CN:
 
-JETT 是一个纯客户端模组，用于隐藏物品 tooltip 上的属性修饰符。默认不隐藏任何内容——打开配置文件，自由选择要移除的属性类型。攻击伤害、攻击速度、护甲值、盔甲韧性、击退抗性等均可独立开关。装备槽位标题行（如"在主手时："）同样支持逐槽位隐藏。属性行和槽位标题行均支持物品白名单。纯视觉调整，不影响实际游戏数值。
+JETT 是一个纯客户端模组，用于掌控物品 tooltip。按类型单独隐藏属性修饰符。为任意物品添加自定义 tooltip 文字。逐槽位开关装备标题行。物品白名单精细控制例外。全部可选，默认不隐藏任何内容。
