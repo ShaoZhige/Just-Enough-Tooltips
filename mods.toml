@@ -1,0 +1,29 @@
+# TOML format: https://github.com/toml-lang/toml
+modLoader="javafml"
+loaderVersion="[32,)"
+license="MIT"
+
+[[mods]]
+modId="jett"
+version="1.1"
+displayName="Just Enough Tooltips"
+authors="Shao_Zhige"
+logoFile="logo.png"
+description='''
+A client-side mod that lets you hide attribute modifiers from item tooltips
+and add custom tooltip text. Full config control — everything is optional.
+'''
+
+[[dependencies.jett]]
+    modId="forge"
+    mandatory=true
+    versionRange="[32,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.jett]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16,1.17)"
+    ordering="NONE"
+    side="BOTH"
