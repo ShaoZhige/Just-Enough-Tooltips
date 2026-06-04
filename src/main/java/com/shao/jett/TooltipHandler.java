@@ -42,6 +42,9 @@ public class TooltipHandler {
         // 物品名称隐藏
         removeItemName(event, stack);
 
+        // 全局 tooltip（所有物品，黑名单排除）
+        addGlobalTooltip(event, stack);
+
         if (isWhitelisted(stack)) {
             debugLog("  Item is whitelisted, skipping most processing");
             addCustomTooltips(event, stack);
@@ -101,6 +104,47 @@ public class TooltipHandler {
             event.getToolTip().remove(0);
             debugLog("  [removeItemName] Specific hide: removed \"{}\" from {}", removed, itemName);
         }
+    }
+
+    /**
+     * 全局 tooltip：对所有物品（黑名单除外）添加统一文字。
+     *
+     * 格式："text"（追加）或 "N:text"（插入第 N 行）。
+     * 空字符串表示禁用。
+     */
+    private void addGlobalTooltip(ItemTooltipEvent event, ItemStack stack) {
+        String raw = JETT.CONFIG.globalTooltip.get();
+        if (raw.isEmpty()) return;
+
+        ResourceLocation itemRl = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        if (itemRl == null) return;
+
+        String itemName = itemRl.toString();
+        List<? extends String> blacklist = JETT.CONFIG.globalTooltipBlacklist.get();
+        if (!blacklist.isEmpty() && blacklist.contains(itemName)) {
+            debugLog("  [globalTooltip] Skipped (blacklisted): {}", itemName);
+            return;
+        }
+
+        int pos = -1;
+        String text = raw;
+        int colon = raw.indexOf(':');
+        if (colon > 0) {
+            try {
+                pos = Integer.parseInt(raw.substring(0, colon));
+                text = raw.substring(colon + 1);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        if (text.isEmpty()) return;
+
+        if (pos >= 0) {
+            int target = Math.min(pos, event.getToolTip().size());
+            event.getToolTip().add(target, new StringTextComponent(text));
+        } else {
+            event.getToolTip().add(new StringTextComponent(text));
+        }
+        debugLog("  [globalTooltip] Added '{}' at position {}", text, pos >= 0 ? pos : "end");
     }
 
     private void removeSlotHeaders(ItemTooltipEvent event, ItemStack stack) {
@@ -273,7 +317,8 @@ public class TooltipHandler {
     /**
      * 解析配置中的自定义 tooltip，匹配物品注册名后插入到指定位置。
      *
-     * 格式：modid:item_name=[N:]文本
+     * 格式：key=[N:]文本
+     *   key: 单个物品 (modid:item_name) 或逗号分隔多物品 (modid:a,modid:b)
      *   N: 可选行号（0-based），多条同位置按配置序排列，超出范围截断到末尾
      *   无 N: 追加到 tooltip 末尾（兼容旧格式）
      */
@@ -293,7 +338,7 @@ public class TooltipHandler {
             if (eq <= 0 || eq >= entry.length() - 1) continue;
 
             String key = entry.substring(0, eq);
-            if (!key.equals(itemName)) continue;
+            if (!matchesItemKey(key, itemName)) continue;
 
             String raw = entry.substring(eq + 1);
             int colon = raw.indexOf(':');
@@ -429,5 +474,17 @@ public class TooltipHandler {
 
         event.getToolTip().clear();
         event.getToolTip().addAll(kept);
+    }
+
+    /**
+     * 检查配置 key 是否匹配当前物品。
+     * 支持逗号分隔的多物品 key（如 "minecraft:diamond,diamond_block,emerald"）。
+     */
+    private static boolean matchesItemKey(String configKey, String itemName) {
+        if (configKey.isEmpty() || itemName.isEmpty()) return false;
+        for (String part : configKey.split(",")) {
+            if (part.trim().equals(itemName)) return true;
+        }
+        return false;
     }
 }
