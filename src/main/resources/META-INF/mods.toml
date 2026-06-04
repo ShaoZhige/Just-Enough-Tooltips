@@ -5,14 +5,13 @@ license="MIT"
 
 [[mods]]
 modId="jett"
-version="1.0.0"
+version="1.2.0"
 displayName="Just Enough Tooltips"
 authors="Shao_Zhige"
 logoFile="logo.png"
 description='''
 A client-side mod that lets you hide attribute modifiers from item tooltips
-and add custom tooltip text. Full config control \u2014 everything is optional.
-\u7EAF\u5BA2\u6237\u7AEF\u6A21\u7EC4\uFF0C\u53EF\u81EA\u5B9A\u4E49\u9690\u85CF\u5C5E\u6027\u4FEE\u9970\u7B26\u5E76\u6DFB\u52A0\u81EA\u5B9A\u4E49tooltip\u3002
+and add custom tooltip text. Full config control — everything is optional.
 '''
 
 [[dependencies.jett]]
