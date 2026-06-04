@@ -21,18 +21,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 public class TooltipHandler {
 
+    private static void debugLog(String format, Object... args) {
+        if (JETT.CONFIG.debug.get()) {
+            JETT.LOGGER.info("[JETT-Debug] " + format, args);
+        }
+    }
+
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
+        ResourceLocation rl = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        String itemName = rl != null ? rl.toString() : "<unknown>";
+        debugLog("Processing tooltip for: {}", itemName);
 
         // 物品名称隐藏
         removeItemName(event, stack);
 
         if (isWhitelisted(stack)) {
+            debugLog("  Item is whitelisted, skipping most processing");
             addCustomTooltips(event, stack);
             return;
         }
@@ -46,6 +57,7 @@ public class TooltipHandler {
         // 根据 hiddenAttributes 配置收集要匹配的属性翻译名
         Set<String> hiddenNames = collectHiddenAttributeNames(stack);
         if (!hiddenNames.isEmpty()) {
+            debugLog("  [hiddenAttributes] Hiding attribute names: {}", hiddenNames);
             // 文本匹配移除（属性名始终在行尾，用 endsWith 避免 "Armor" 误匹配 "Armor Toughness"）
             event.getToolTip().removeIf(line -> {
                 String text = line.getString();
@@ -74,34 +86,47 @@ public class TooltipHandler {
         // 全局隐藏模式
         if (config.hideAllItemNames.get()) {
             if (!config.itemNameWhitelist.get().contains(itemName)) {
+                String removed = event.getToolTip().get(0).getString();
                 event.getToolTip().remove(0);
+                debugLog("  [removeItemName] Global hide: removed \"{}\" from {}", removed, itemName);
+            } else {
+                debugLog("  [removeItemName] Whitelisted (global hide): {}", itemName);
             }
             return;
         }
 
         // 单物品隐藏模式
         if (config.hideItemNames.get().contains(itemName)) {
+            String removed = event.getToolTip().get(0).getString();
             event.getToolTip().remove(0);
+            debugLog("  [removeItemName] Specific hide: removed \"{}\" from {}", removed, itemName);
         }
     }
 
     private void removeSlotHeaders(ItemTooltipEvent event, ItemStack stack) {
         // 槽位标题白名单检查
         ResourceLocation rl = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        if (rl != null && JETT.CONFIG.slotHeaderWhitelist.get().contains(rl.toString())) return;
+        if (rl != null && JETT.CONFIG.slotHeaderWhitelist.get().contains(rl.toString())) {
+            debugLog("  [removeSlotHeaders] Whitelisted: {}", rl);
+            return;
+        }
 
         Config config = JETT.CONFIG;
+        List<String> removed = new ArrayList<>();
         event.getToolTip().removeIf(line -> {
             if (!(line instanceof TranslationTextComponent)) return false;
             String key = ((TranslationTextComponent) line).getKey();
-            if (key.equals("item.modifiers.mainhand") && config.hideSlotHeaderMainhand.get()) return true;
-            if (key.equals("item.modifiers.offhand")  && config.hideSlotHeaderOffhand.get())  return true;
-            if (key.equals("item.modifiers.head")     && config.hideSlotHeaderHead.get())     return true;
-            if (key.equals("item.modifiers.chest")    && config.hideSlotHeaderChest.get())    return true;
-            if (key.equals("item.modifiers.legs")     && config.hideSlotHeaderLegs.get())     return true;
-            if (key.equals("item.modifiers.feet")     && config.hideSlotHeaderFeet.get())     return true;
+            if (key.equals("item.modifiers.mainhand") && config.hideSlotHeaderMainhand.get()) { removed.add(key); return true; }
+            if (key.equals("item.modifiers.offhand")  && config.hideSlotHeaderOffhand.get())  { removed.add(key); return true; }
+            if (key.equals("item.modifiers.head")     && config.hideSlotHeaderHead.get())     { removed.add(key); return true; }
+            if (key.equals("item.modifiers.chest")    && config.hideSlotHeaderChest.get())    { removed.add(key); return true; }
+            if (key.equals("item.modifiers.legs")     && config.hideSlotHeaderLegs.get())     { removed.add(key); return true; }
+            if (key.equals("item.modifiers.feet")     && config.hideSlotHeaderFeet.get())     { removed.add(key); return true; }
             return false;
         });
+        if (!removed.isEmpty()) {
+            debugLog("  [removeSlotHeaders] Removed: {}", removed);
+        }
     }
 
     private boolean isWhitelisted(ItemStack stack) {
@@ -134,6 +159,7 @@ public class TooltipHandler {
                 AttributeModifier.Operation op = e.getValue().getOperation();
                 if (op == AttributeModifier.Operation.MULTIPLY_BASE
                         || op == AttributeModifier.Operation.MULTIPLY_TOTAL) {
+                    debugLog("  [mergeModifiers] Skipping {} (multiply op, slot: {})", path, slot);
                     pathMultiply.put(path, true);
                     continue;
                 }
@@ -168,8 +194,10 @@ public class TooltipHandler {
         if (plans.isEmpty()) return;
         plans.sort((a, b) -> Integer.compare(b.pos, a.pos));
 
+        debugLog("  [mergeModifiers] Merging {} attribute(s)...", plans.size());
         // 执行合并
         for (Plan p : plans) {
+            debugLog("    {}: {} modifiers → total={}, isDefault={}", p.path, pathCount.get(p.path), p.total, p.isDefault);
             // 删旧行
             for (int i = event.getToolTip().size() - 1; i >= 0; i--) {
                 if (event.getToolTip().get(i).getString().trim().endsWith(p.name)) {
@@ -307,6 +335,12 @@ public class TooltipHandler {
         for (String text : appended) {
             event.getToolTip().add(new StringTextComponent(text));
         }
+
+        int total = groups.values().stream().mapToInt(List::size).sum() + appended.size();
+        if (total > 0) {
+            debugLog("  [customTooltips] Added {} line(s): groupPositions={}, appended={}",
+                    total, groups.keySet().stream().sorted().collect(Collectors.toList()), appended.size());
+        }
     }
 
     /**
@@ -347,14 +381,24 @@ public class TooltipHandler {
             int eq = entry.indexOf('=');
             if (eq <= 0 || eq >= entry.length() - 1) continue;
             if (entry.substring(0, eq).equals(itemName)) {
-                compiled.add(Pattern.compile(entry.substring(eq + 1)));
+                try {
+                    compiled.add(Pattern.compile(entry.substring(eq + 1)));
+                } catch (PatternSyntaxException e) {
+                    JETT.LOGGER.error("[JETT] Invalid regex in perItemRegexRemove for item {}: \"{}\" — {}",
+                            itemName, entry.substring(eq + 1), e.getMessage());
+                }
             }
         }
 
         // 全局正则：仅当物品不在白名单中时才添加
         if (!config.regexRemoveWhitelist.get().contains(itemName)) {
             for (String pattern : config.regexRemove.get()) {
-                compiled.add(Pattern.compile(pattern));
+                try {
+                    compiled.add(Pattern.compile(pattern));
+                } catch (PatternSyntaxException e) {
+                    JETT.LOGGER.error("[JETT] Invalid regex in regexRemove: \"{}\" — {}",
+                            pattern, e.getMessage());
+                }
             }
         }
 
@@ -362,6 +406,7 @@ public class TooltipHandler {
 
         // 仿 CRT 过滤逻辑
         List<ITextComponent> kept = new ArrayList<>();
+        int removedCount = 0;
         for (ITextComponent line : event.getToolTip()) {
             String text = line.getString();
             boolean matched = false;
@@ -373,8 +418,14 @@ public class TooltipHandler {
             }
             if (!matched) {
                 kept.add(line);
+            } else {
+                removedCount++;
+                debugLog("  [regexRemove] Removed line: \"{}\"", text);
             }
         }
+
+        debugLog("  [regexRemove] {} pattern(s) compiled, removed {} line(s), kept {} line(s)",
+                compiled.size(), removedCount, kept.size());
 
         event.getToolTip().clear();
         event.getToolTip().addAll(kept);

@@ -9,11 +9,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(JETT.MODID)
 public class JETT {
 
     public static final String MODID = "jett";
+    public static final Logger LOGGER = LogManager.getLogger();
 
     static final ForgeConfigSpec CONFIG_SPEC;
     static final Config CONFIG;
