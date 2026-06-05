@@ -221,7 +221,7 @@ public class Config {
                 "Hide equipment slot header lines.",
                 "All disabled by default — enable only what you need.",
                 "",
-                "Examples of slot headers:",
+                "Equipment slot headers:",
                 "  \"When in main hand:\"  (item.modifiers.mainhand)",
                 "  \"When in off hand:\"   (item.modifiers.offhand)",
                 "  \"When on head:\"       (item.modifiers.head)",
