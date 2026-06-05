@@ -66,6 +66,9 @@ public class Config {
     public final ConfigValue<Boolean> hideSlotHeaderLegs;
     public final ConfigValue<Boolean> hideSlotHeaderFeet;
 
+    /** Hide tipped arrow / potion effect header ("When Applied:") */
+    public final ConfigValue<Boolean> hidePotionEffectHeader;
+
     /** Items that keep their slot header lines. Format: "modid:item_name" */
     public final ConfigValue<List<? extends String>> slotHeaderWhitelist;
 
@@ -250,6 +253,12 @@ public class Config {
         hideSlotHeaderFeet = builder
                 .comment("Hide the feet slot header.")
                 .define("hideFeet", false);
+
+        hidePotionEffectHeader = builder
+                .comment("Hide tipped arrow / potion effect header.",
+                         "\"When Applied:\" on tipped arrows and potions.",
+                         "隐藏药箭/药水的 \"当生效后：\" 标题行。")
+                .define("hidePotionEffectHeader", false);
 
         slotHeaderWhitelist = builder
                 .comment(

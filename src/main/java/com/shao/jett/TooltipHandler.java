@@ -166,6 +166,7 @@ public class TooltipHandler {
             if (key.equals("item.modifiers.chest")    && config.hideSlotHeaderChest.get())    { removed.add(key); return true; }
             if (key.equals("item.modifiers.legs")     && config.hideSlotHeaderLegs.get())     { removed.add(key); return true; }
             if (key.equals("item.modifiers.feet")     && config.hideSlotHeaderFeet.get())     { removed.add(key); return true; }
+            if (key.equals("potion.whenDrank")                       && config.hidePotionEffectHeader.get()) { removed.add(key); return true; }
             return false;
         });
         if (!removed.isEmpty()) {
