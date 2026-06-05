@@ -1,22 +1,22 @@
 package com.shao.jett;
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import com.mojang.logging.LogUtils;
 
 @Mod(JETT.MODID)
 public class JETT {
 
     public static final String MODID = "jett";
-    public static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     static final ForgeConfigSpec CONFIG_SPEC;
     static final Config CONFIG;
@@ -28,7 +28,7 @@ public class JETT {
     }
 
     public JETT() {
-        // 纯客户端模组，服务端跳过
+        // Pure client-side mod — skip on dedicated server
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
                 () -> () -> {
                     ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CONFIG_SPEC);
