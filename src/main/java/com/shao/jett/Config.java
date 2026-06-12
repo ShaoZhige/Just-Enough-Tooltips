@@ -97,11 +97,11 @@ public class Config {
                 "A client-side mod that gives you full control over item tooltips.",
                 "All features are optional — only enable what you need.",
                 "",
-                "Note: some settings support hot-reloading (switch to game after editing),",
-                "but restarting the game is always recommended.",
+                "All settings support hot-reloading — edit the config and switch back",
+                "to the game to see changes immediately. No restart required.",
                 "",
                 "\u7eaf\u5ba2\u6237\u7aef\u6a21\u7ec4\uff0c\u6240\u6709\u529f\u80fd\u5747\u53ef\u72ec\u7acb\u5f00\u5173\u3002",
-                "\u90e8\u5206\u8bbe\u7f6e\u652f\u6301\u70ed\u91cd\u8f7d\uff0c\u4f46\u5efa\u8bae\u6bcf\u6b21\u6539\u5b8c\u914d\u7f6e\u540e\u91cd\u542f\u6e38\u620f\u3002")
+                "\u5168\u90e8\u8bbe\u7f6e\u652f\u6301\u70ed\u91cd\u8f7d\uff0c\u4fee\u6539\u914d\u7f6e\u540e\u5207\u56de\u6e38\u620f\u5373\u53ef\u751f\u6548\uff0c\u65e0\u9700\u91cd\u542f\u3002")
                .push("general");
 
         itemWhitelist = builder
