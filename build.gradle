@@ -13,9 +13,9 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
-version = '1.4.0'
+version = mod_version
 group = 'com.shao.jett'
-archivesBaseName = 'JETT-1.16.x'
+archivesBaseName = 'JETT'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 compileJava.options.encoding = 'UTF-8'
