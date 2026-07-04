@@ -183,18 +183,20 @@ public class TooltipHandler {
      * 合并多修饰符为一行（灵感来自 NeoForge）。
      *
      * 通用：遍历所有属性 modifier，多修饰符则按路径合并。
-     * 特殊：攻击伤害（+1 空手基础）、攻击速度（+4 空手基础）绿色无符号；
+     * 特殊：攻击伤害、攻击速度显示总值（修饰符和 + 属性基础值），绿色无符号；
+     *       基础值从 Attribute.getDefaultValue() 动态读取，兼容其他模组修改空手数值的场景；
      *       其他属性蓝色/红色显示 +/- 符号。
      *       乘法运算检测到则跳过该属性。
      */
     private void mergeAttributeModifiers(ItemTooltipEvent event, ItemStack stack) {
         if (!JETT.CONFIG.mergeModifiers.get()) return;
 
-        // 收集合并计划：path → (count, total, hasMultiply, translatedName)
+        // 收集合并计划：path → (count, total, hasMultiply, translatedName, baseValue)
         Map<String, Double> pathTotal = new LinkedHashMap<>();
         Map<String, Integer> pathCount = new LinkedHashMap<>();
         Map<String, Boolean> pathMultiply = new LinkedHashMap<>();
         Map<String, String> pathName = new LinkedHashMap<>();
+        Map<String, Double> pathBaseValue = new LinkedHashMap<>();
 
         for (EquipmentSlotType slot : EquipmentSlotType.values()) {
             for (Map.Entry<Attribute, AttributeModifier> e : stack.getAttributeModifiers(slot).entries()) {
@@ -212,6 +214,7 @@ public class TooltipHandler {
                 pathCount.merge(path, 1, Integer::sum);
                 pathName.computeIfAbsent(path, k ->
                         new TranslationTextComponent("attribute.name." + path).getString());
+                pathBaseValue.computeIfAbsent(path, k -> e.getKey().getDefaultValue());
             }
         }
 
@@ -225,9 +228,10 @@ public class TooltipHandler {
             p.name = pathName.get(path);
             p.total = pathTotal.get(path);
             p.isDefault = path.equals("generic.attack_damage") || path.equals("generic.attack_speed");
-            // 默认属性显示 = API 总和 + 基础值
-            if (path.equals("generic.attack_damage")) p.total += 1;
-            else if (path.equals("generic.attack_speed")) p.total += 4;
+            // 默认属性显示 = 修饰符总和 + 属性基础值（从 Attribute.getDefaultValue() 读取，兼容其他模组修改空手数值的场景）
+            if (p.isDefault) {
+                p.total += pathBaseValue.getOrDefault(path, 0.0);
+            }
             // 找 tooltip 第一行位置（endsWith 避免 "Armor" 误匹配 "Armor Toughness"）
             p.pos = event.getToolTip().size();
             for (int i = 0; i < event.getToolTip().size(); i++) {

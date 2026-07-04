@@ -5,7 +5,7 @@ license="MIT"
 
 [[mods]]
 modId="jett"
-version="1.4.2-Forge-1.16.1-1.16.5"
+version="1.5.0-Forge-1.16.1-1.16.5"
 displayName="Just Enough Tooltips"
 authors="Shao_Zhige"
 logoFile="logo.png"
