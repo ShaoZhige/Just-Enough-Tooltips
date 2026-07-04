@@ -178,6 +178,7 @@ public class TooltipHandler {
         Map<String, Integer> pathCount = new LinkedHashMap<>();
         Map<String, Boolean> pathMultiply = new LinkedHashMap<>();
         Map<String, String> pathName = new LinkedHashMap<>();
+        Map<String, Double> pathBaseValue = new LinkedHashMap<>();
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             Multimap<Attribute, AttributeModifier> modifiers = stack.getAttributeModifiers(slot);
@@ -196,6 +197,7 @@ public class TooltipHandler {
                 pathCount.merge(path, 1, Integer::sum);
                 pathName.computeIfAbsent(path, k ->
                         Component.translatable("attribute.name." + k).getString());
+                pathBaseValue.computeIfAbsent(path, k -> e.getKey().getDefaultValue());
             }
         }
 
@@ -208,8 +210,9 @@ public class TooltipHandler {
             p.name = pathName.get(path);
             p.total = pathTotal.get(path);
             p.isDefault = path.equals("generic.attack_damage") || path.equals("generic.attack_speed");
-            if (path.equals("generic.attack_damage")) p.total += 1;
-            else if (path.equals("generic.attack_speed")) p.total += 4;
+            if (p.isDefault) {
+                p.total += pathBaseValue.getOrDefault(path, 0.0);
+            }
             p.pos = event.getToolTip().size();
             for (int i = 0; i < event.getToolTip().size(); i++) {
                 if (event.getToolTip().get(i).getString().trim().endsWith(p.name)) { p.pos = i; break; }
